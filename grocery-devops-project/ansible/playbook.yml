@@ -1,0 +1,85 @@
+---
+- name: Deploy Grocery Ordering App
+  hosts: app_servers
+  become: true
+
+  vars:
+    image_repo: "yourdockerhubusername/grocery-app"
+    image_tag: "latest"
+    container_name: "grocery-app"
+    app_port: 5000
+
+  tasks:
+    - name: Install prerequisite packages
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+        state: present
+        update_cache: true
+
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker repository
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+        state: present
+
+    - name: Install Docker Engine
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: present
+        update_cache: true
+
+    - name: Ensure Docker service is running
+      service:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Log in to Docker Hub (if credentials provided)
+      community.docker.docker_login:
+        username: "{{ dockerhub_username | default(omit) }}"
+        password: "{{ dockerhub_password | default(omit) }}"
+      when: dockerhub_username is defined
+      no_log: true
+
+    - name: Pull the latest application image
+      community.docker.docker_image:
+        name: "{{ image_repo }}:{{ image_tag }}"
+        source: pull
+        force_source: true
+
+    - name: Stop and remove existing container (if any)
+      community.docker.docker_container:
+        name: "{{ container_name }}"
+        state: absent
+
+    - name: Run the Grocery App container
+      community.docker.docker_container:
+        name: "{{ container_name }}"
+        image: "{{ image_repo }}:{{ image_tag }}"
+        state: started
+        restart_policy: unless-stopped
+        published_ports:
+          - "{{ app_port }}:5000"
+        env:
+          SECRET_KEY: "{{ app_secret_key | default('change-me-in-production') }}"
+
+    - name: Wait for application health check to pass
+      uri:
+        url: "http://localhost:{{ app_port }}/health"
+        status_code: 200
+      register: health_result
+      retries: 5
+      delay: 5
+      until: health_result.status == 200

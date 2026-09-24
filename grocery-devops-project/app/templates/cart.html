@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Cart - Grocery App{% endblock %}
+{% block content %}
+<h1 class="mb-4">Your Cart</h1>
+
+{% if items %}
+<table class="table table-striped bg-white shadow-sm">
+  <thead><tr><th>Product</th><th>Qty</th><th>Price</th><th>Subtotal</th><th></th></tr></thead>
+  <tbody>
+    {% for item in items %}
+    <tr>
+      <td>{{ item.product.name }}</td>
+      <td>{{ item.quantity }}</td>
+      <td>₹{{ "%.2f"|format(item.product.price) }}</td>
+      <td>₹{{ "%.2f"|format(item.subtotal) }}</td>
+      <td>
+        <form method="post" action="{{ url_for('remove_from_cart', product_id=item.product.id) }}">
+          <button class="btn btn-sm btn-outline-danger">Remove</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+  <tfoot>
+    <tr><th colspan="3" class="text-end">Total</th><th colspan="2">₹{{ "%.2f"|format(total) }}</th></tr>
+  </tfoot>
+</table>
+
+<form method="post" action="{{ url_for('checkout') }}" class="bg-white p-4 rounded shadow-sm" style="max-width: 500px;">
+  <div class="mb-3">
+    <label class="form-label">Deliver to</label>
+    <select name="customer_id" class="form-select" required>
+      <option value="" disabled selected>Select customer</option>
+      {% for c in customers %}
+      <option value="{{ c.id }}">{{ c.name }} ({{ c.email }})</option>
+      {% endfor %}
+    </select>
+  </div>
+  <button type="submit" class="btn btn-success">Place Order</button>
+</form>
+
+{% else %}
+<p class="text-muted">Your cart is empty. <a href="{{ url_for('list_products') }}">Browse products</a>.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Customers - Grocery App{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1>Customers</h1>
+  <a href="{{ url_for('add_customer') }}" class="btn btn-primary">+ Add Customer</a>
+</div>
+<table class="table table-striped bg-white shadow-sm">
+  <thead><tr><th>Name</th><th>Email</th><th>Address</th></tr></thead>
+  <tbody>
+    {% for c in customers %}
+    <tr><td>{{ c.name }}</td><td>{{ c.email }}</td><td>{{ c.address or "—" }}</td></tr>
+    {% else %}
+    <tr><td colspan="3" class="text-center text-muted">No customers yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

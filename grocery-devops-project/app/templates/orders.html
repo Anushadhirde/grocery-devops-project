@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Orders - Grocery App{% endblock %}
+{% block content %}
+<h1 class="mb-4">Orders</h1>
+<table class="table table-striped bg-white shadow-sm">
+  <thead><tr><th>#</th><th>Customer</th><th>Date</th><th>Status</th><th>Total</th><th></th></tr></thead>
+  <tbody>
+    {% for order in orders %}
+    <tr>
+      <td>{{ order.id }}</td>
+      <td>{{ order.customer.name }}</td>
+      <td>{{ order.order_date.strftime('%Y-%m-%d %H:%M') }}</td>
+      <td>
+        <span class="badge bg-{{ 'success' if order.status == 'Delivered' else ('danger' if order.status == 'Cancelled' else 'warning text-dark') }}">
+          {{ order.status }}
+        </span>
+      </td>
+      <td>₹{{ "%.2f"|format(order.total) }}</td>
+      <td><a href="{{ url_for('order_detail', order_id=order.id) }}" class="btn btn-sm btn-outline-primary">View</a></td>
+    </tr>
+    {% else %}
+    <tr><td colspan="6" class="text-center text-muted">No orders yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

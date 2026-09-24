@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - Grocery App{% endblock %}
+{% block content %}
+<h1 class="mb-4">Dashboard</h1>
+<div class="row g-3">
+  <div class="col-md-4">
+    <div class="card text-center shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">Total Products</h5>
+        <p class="display-6">{{ stats.total_products }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card text-center shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">Total Customers</h5>
+        <p class="display-6">{{ stats.total_customers }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card text-center shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">Pending Orders</h5>
+        <p class="display-6">{{ stats.pending_orders }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mt-4">
+  <a href="{{ url_for('add_product') }}" class="btn btn-primary">+ Add Product</a>
+  <a href="{{ url_for('add_customer') }}" class="btn btn-secondary">+ Add Customer</a>
+  <a href="{{ url_for('list_products') }}" class="btn btn-success">Start Shopping</a>
+</div>
+
+<p class="mt-4 text-muted">
+  Health check: <code>/health</code> &nbsp;|&nbsp; Metrics (Prometheus): <code>/metrics</code>
+</p>
+{% endblock %}
