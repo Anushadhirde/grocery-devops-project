@@ -5,7 +5,7 @@ pipeline {
         IMAGE_NAME   = "grocery-app"
         IMAGE_TAG    = "${env.BUILD_NUMBER}"
         DOCKERHUB_REPO = "yourdockerhubusername/grocery-app"   // TODO: change to your Docker Hub repo
-        REGISTRY_CREDENTIALS = credentials('dockerhub-credentials') // Jenkins credential ID
+        REGISTRY_CREDENTIALS = credentials('dockerhub-creds') // Jenkins credential ID
     }
 
     options {
@@ -68,7 +68,7 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-credentials') {
+                    REGISTRY_CREDENTIALS = credentials('dockerhub-creds') {
                         dockerImage.push("${IMAGE_TAG}")
                         dockerImage.push("latest")
                     }
