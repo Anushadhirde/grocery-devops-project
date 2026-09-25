@@ -68,7 +68,7 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    REGISTRY_CREDENTIALS = credentials('dockerhub-creds') {
+                    docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-creds') {
                         dockerImage.push("${IMAGE_TAG}")
                         dockerImage.push("latest")
                     }
