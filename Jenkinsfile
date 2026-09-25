@@ -4,7 +4,7 @@ pipeline {
     environment {
         IMAGE_NAME   = "grocery-app"
         IMAGE_TAG    = "${env.BUILD_NUMBER}"
-        DOCKERHUB_REPO = "yourdockerhubusername/grocery-app"   // TODO: change to your Docker Hub repo
+        DOCKERHUB_REPO = "athanusha/grocery-app"   // TODO: change to your Docker Hub repo
         REGISTRY_CREDENTIALS = credentials('dockerhub-creds') // Jenkins credential ID
     }
 
