@@ -90,13 +90,11 @@ pipeline {
             steps {
                 echo "Verifying deployment health..."
                 sh '''
-                    sleep 10
-                    curl -f http://localhost:5000/health || exit 1
+                    sleep 5
+                    docker exec grocery-app python3 -c "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"
                 '''
             }
         }
-    }
-
     post {
         success {
             echo "✅ Pipeline completed successfully: Git → Jenkins → Build & Test → Docker Image → Deployment → Monitoring"
