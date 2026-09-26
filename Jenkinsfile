@@ -4,8 +4,7 @@ pipeline {
     environment {
         IMAGE_NAME   = "grocery-app"
         IMAGE_TAG    = "${env.BUILD_NUMBER}"
-        DOCKERHUB_REPO = "athanusha/grocery-app"   // TODO: change to your Docker Hub repo
-        REGISTRY_CREDENTIALS = credentials('dockerhub-creds') // Jenkins credential ID
+        DOCKERHUB_REPO = "athanusha/grocery-app"
     }
 
     options {
@@ -59,19 +58,18 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                script {
-                    dockerImage = docker.build("${DOCKERHUB_REPO}:${IMAGE_TAG}")
-                }
+                sh "docker build -t ${DOCKERHUB_REPO}:${IMAGE_TAG} -t ${DOCKERHUB_REPO}:latest ."
             }
         }
 
         stage('Push Docker Image') {
             steps {
-                script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-creds') {
-                        dockerImage.push("${IMAGE_TAG}")
-                        dockerImage.push("latest")
-                    }
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh '''
+                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                        docker push ${DOCKERHUB_REPO}:${IMAGE_TAG}
+                        docker push ${DOCKERHUB_REPO}:latest
+                    '''
                 }
             }
         }
@@ -95,6 +93,8 @@ pipeline {
                 '''
             }
         }
+    }
+
     post {
         success {
             echo "✅ Pipeline completed successfully: Git → Jenkins → Build & Test → Docker Image → Deployment → Monitoring"
