@@ -33,10 +33,11 @@
           SECRET_KEY: "{{ app_secret_key | default('change-me-in-production') }}"
 
     - name: Wait for application health check to pass
-      uri:
-        url: "http://localhost:{{ app_port }}/health"
-        status_code: 200
+      command: >
+        docker exec {{ container_name }} python3 -c
+        "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"
       register: health_result
       retries: 5
       delay: 5
-      until: health_result.status == 200
+      until: health_result.rc == 0
+      changed_when: false
